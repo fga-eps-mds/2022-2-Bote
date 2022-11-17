@@ -14,32 +14,21 @@ accounts = []
 usuario_professor = False
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if usuario_professor:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="""Bem vindo ao auto cursos bot!
-        
-        o que você deseja fazer?
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="""Bem vindo ao auto cursos bot!
+    
+    o que você deseja fazer?
 
-        """,reply_markup=telegram.InlineKeyboardMarkup(inline_keyboard=[
-        [
-            telegram.InlineKeyboardButton(text="entrar",callback_data='entrar'),
+    """,reply_markup=telegram.InlineKeyboardMarkup(inline_keyboard=[
+    [
+        telegram.InlineKeyboardButton(text="entrar",callback_data='entrar'),
 
-        ],
-        [
-            telegram.InlineKeyboardButton(text="criar conta",callback_data='criar_conta')
+    ],
+    [
+        telegram.InlineKeyboardButton(text="criar conta",callback_data='criar_conta')
 
-        ]
-        ]))
-    else:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="""Bem vindo ao auto cursos bot!
-
-        o que você deseja fazer?
-
-        """,reply_markup=telegram.InlineKeyboardMarkup(inline_keyboard=[
-        [
-            telegram.InlineKeyboardButton(text="ver seus cursos",callback_data='entrar'),
-
-        ]
-        ]))
+    ]
+    ]))
+   
 
 
 
@@ -56,7 +45,7 @@ flags = {
 
 
 async def mostrarMenuPrincipal(update: Update,context: ContextTypes.DEFAULT_TYPE):
-    await context.bot.send_message(chat_id=update.effective_chat.id,text='O que você deseja fazer?',reply_markup=telegram.InlineKeyboardMarkup(
+    await context.bot.send_message(chat_id=update.effective_chat.id,text='Como posso te ajudar hoje?',reply_markup=telegram.InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(text="criar curso"),
