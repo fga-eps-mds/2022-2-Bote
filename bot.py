@@ -3,6 +3,15 @@ from telegram import Update,InlineKeyboardButton
 from telegram.ext import ApplicationBuilder,MessageHandler, ContextTypes, CommandHandler,CallbackQueryHandler
 import telegram.ext.filters as filters
 import telegram
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import firestore
+
+
+# Use a service account.
+cred = credentials.Certificate('serviceAccount.json')
+app = firebase_admin.initialize_app(cred)
+db = firestore.client()
 
 
 logging.basicConfig(
