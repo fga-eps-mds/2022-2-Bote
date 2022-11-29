@@ -44,7 +44,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 flags = {
     "criando_conta":False,
-    "fazendo_login":False,  
+    "fazendo_login":False,
         "mandando_username":False,
         "mandando_senha":False,
     "criando_curso":False,
