@@ -112,8 +112,7 @@ async def messageHandler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 def resetFlags():
     for item in flags.keys():
         flags[item] = False
-
-
+        
 
 async def criarCurso(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not flags["criando_curso"]:
