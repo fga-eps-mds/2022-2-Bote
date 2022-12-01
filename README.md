@@ -1,55 +1,57 @@
-# 2022-2-Squad05
+# Squad05 - Bot para o telegram
 
 **Nosso projeto busca facilitar para o professor o envio de materiais para os alunos de um curso, fazendo com que eles recebam os conteúdos de forma gradual de acordo com sua evolução no curso.**
 
-## Tecnologias
+## 🚀 Começando
 
-* Python > 3.9
-* Firebase - DB
-* Telegram API
+### 📋 Pré-requisitos
+
+Para utilizar nosso bot, só é necessario chama-lo no [Telegram]()!
 
 
-# Iniciativas
 
-## Bot de Criação dos Cursos
+## ⚙️ Executando os testes
 
-### Descrição
+Explicar como executar os testes automatizados para este sistema.
 
-* Esse bot é o mais importante e será o que possibilita a criação de cursos, administração do conteúdo e monitoramento dos alunos inscritos.
-* O bot deve automatizar todo o processo de "entrega" de conteúdos. Dados os materiais disponibilizados pelo criador do curso, o bot deve enviar os materiais na ordem estabelecida pelo administrador. Um material só pode ser enviado quando o usuário "dizer" ao bot que já visualizou o material anterior. Assim, fica mais simples o acompanhamento do progresso dos alunos e, também, ficam mais organizados os estudos e tarefas de cada usuário.
+## 📦 Implantação
 
-### Épicos
+Adicione notas adicionais sobre como implantar isso em um sistema ativo
 
-* Criação dos cursos
+## 🛠️ Construído com
 
-    * Poder adicionar nome, descrição, publico alvo, escola/empresa relacionada ao curso
+Ferramentas utilizadas neste projeto
+* [Python](https://www.python.org) - Linguagem de porgramação
+* [Firebase](https://firebase.google.com/?gclid=Cj0KCQiAvqGcBhCJARIsAFQ5ke7damUmn6HwwOXpFkFdfflo5oYPWLHJUqMLIUwngppxCSalcijVVaIaAqjwEALw_wcB&gclsrc=aw.ds) - Serviço de hospedagem
+* [API do telegram](https://core.telegram.org)
 
-* Adição, edição e remoção de conteúdos
+## 🖇️ Colaborando
 
-    * O criador do curso deve ser capaz de adicionar, editar e remover links para conteúdos, sejam eles pdfs, vídeos, websites, etc. Seria ideal que o usuário não tivesse que fazer download de nenhum desses conteúdos.
+Por favor, leia o ... para obter detalhes sobre o nosso código de conduta e o processo para nos enviar pedidos de solicitação.
 
-* Acompanhamento dos alunos
+## 📌 Versão
 
-    * Possibilidade de ver e exportar uma planilha contendo quantos e quais são os usuários inscritos no curso; e, se possível, em que ponto estão no curso.
+Nós usamos [SemVer](http://semver.org/) para controle de versão. Para as versões disponíveis, observe as [tags neste repositório](https://github.com/suas/tags/do/projeto). 
 
-## Bot para ser aluno do curso
+## ✒️ Autores
 
-### Descrição
+A galera que ajudou a levantar o projeto desde o seu início
 
-* Esse bot é responsável por mandar e interagir com os alunos de cada curso de forma simples e prática
+* **Ana Letícia** -  (https://github.com/analeticiaa)
+* **Arthur** - (https://github.com/arthur-augusto)
+* **Brunna** - (https://github.com/brunna-martins)
+* **Caetano** - (https://github.com/caeslucio)
+* **Larissa** - (https://github.com/larigs)
+* **Otávio** - (https://github.com/knz13)
 
-* Esse bot também é importante para que os usuários possam se inscrever no curso e possibilitar o acompanhamento de seu progresso por parte do criador do curso.
 
-### Épicos
+Você também pode ver a lista de todos os [colaboradores](https://github.com/fga-eps-mds/2022-2-Squad05/colaboradores) que participaram deste projeto.
 
-* Acesso aos cursos
+## 📄 Licença
 
-    * Possibilidade de ser participante de vários cursos e poder acessá-los a qualquer momento
+Este projeto está sob a licença [MIT](https://opensource.org/licenses/MIT)
 
-* Enviar conteúdos
+## 🎁 Expressões de gratidão
 
-    * a ideia central do bot é possibilitar o acesso aos materiais disponibilizados pelo criador do curso de forma sequencial e ordenada. Cada progresso do aluno deve ser computado e enviado para o administrador acompanhar o progresso do aluno.
-
-* Voltar em conteúdos anteriores
-
-    * não é o mais importante nesse bot, mas seria interessante que o aluno possa visitar materiais já passados caso queira.
+* Conte a outras pessoas sobre este projeto 📢;
+* Convide alguém da equipe para um café ☕;
