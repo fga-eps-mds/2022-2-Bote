@@ -1,7 +1,7 @@
 <!-- docs/_sidebar.md -->
 
-- [Home](home.md)
-- [Gerenciamento](#)
+- [*Home*](home.md)
+- [*Gerenciamento*](#)
     * [Processo do projeto](processo.md)
     * [Métricas e Indicadores](metricas.md)
     * [Sprint 0](./sprints/sprint0.md)

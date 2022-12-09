@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap');
+
+.body{
+  font-family: 'Open Sans', sans-serif;
+}
+
+.wrapper {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: minmax(100px, auto);
+}
+  
+.img-time {
+  opacity: 1;
+  display: block;
+  width: 8  0%;
+  height: auto;
+  border-radius: 50%;
+  padding-top: 10%;
+  padding-bottom: 10%;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.image1{
+  grid-column-start: 1;
+  grid-column-end: 2;
+}
+.image2{
+  grid-column-start: 4;
+  grid-column-end: 5;
+}
+.text1{
+  padding-left: 10%;
+  grid-column-start: 2;
+  grid-column-end: 4;
+}
+.text2{
+  padding-left: 10%;
+  grid-column-start: 5;
+  grid-column-end: 7;
+}
