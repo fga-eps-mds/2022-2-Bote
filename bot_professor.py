@@ -8,6 +8,7 @@ import sqlite3 as sql
 import os
 from hashlib import sha256
 from typing import List
+from copy import deepcopy
 
 
 
@@ -41,24 +42,27 @@ def call_database_and_execute(statement,parameters = []) -> List[sql.Row]:
 
 flags = {
     "criando_curso":False,
+    "editando_curso":False,
         "mandando_nome_curso":False,
         "mandando_descricao_curso":False,
-        "mandando_senha_curso":False
+        "mandando_senha_curso":False,
         #etc
 }
+
+def reset_temp_curso(user_id):
+    temp_dados_curso[user_id] = {"nome":"","descricao":"","senha":"","id":""}
 
 def make_sure_flags_are_init(user_id):
     """função auxiliar para garantir que não vamos acessar um usuário não existente"""
     if user_id not in flags_per_user:
-        flags_per_user[user_id] = flags
+        flags_per_user[user_id] = deepcopy(flags)
 
 
 
 def reset_flags(user_id):
     """função auxiliar para resetar as flags"""
-    flags_per_user[user_id] = flags
-    if user_id in temp_dados_curso:
-        del temp_dados_curso[user_id]
+    flags_per_user[user_id] = deepcopy(flags)
+    reset_temp_curso(user_id)
 
     
 # função auxiliar para evitar mudar uma mensagem muito atrás
@@ -66,6 +70,10 @@ def reset_last_message(user_id):
     if user_id in last_messages:
         del last_messages[user_id]
 
+async def send_message_on_new_block(update: Update,context: ContextTypes.DEFAULT_TYPE,text:str,buttons = [],parse_mode = ''):
+    reset_last_message(update.effective_chat.id)
+    await context.bot.send_message(chat_id=update.effective_chat.id,text=text,reply_markup=telegram.InlineKeyboardMarkup(inline_keyboard=buttons),parse_mode=parse_mode)
+    
 
 async def send_message_or_edit_last(update: Update,context: ContextTypes.DEFAULT_TYPE,text:str,buttons = [],parse_mode = ''):
     """função auxiliar para enviar uma mensagem mais facilmente ou editar a última se possível"""
@@ -136,23 +144,22 @@ async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if flags_per_user[update.effective_chat.id]['criando_curso']:
         if flags_per_user[update.effective_chat.id]["mandando_nome_curso"]:
             temp_dados_curso[update.effective_chat.id]['nome'] = update.effective_message.text
-            await context.bot.send_message(chat_id=update.effective_chat.id,text="Ok! Agora me diga uma breve descrição do seu curso",reply_markup=telegram.InlineKeyboardMarkup(
-                inline_keyboard=[
+            await send_message_on_new_block(update,context,text="Ok! Agora me diga uma breve descrição do seu curso",
+                buttons=[
                     [
                         InlineKeyboardButton("voltar ao menu",callback_data="voltar_ao_menu")
                     ]
                 ]
-            ))
+            )
             flags_per_user[update.effective_chat.id]["mandando_nome_curso"] = False
             flags_per_user[update.effective_chat.id]["mandando_descricao_curso"] = True
-            reset_last_message(update.effective_chat.id)
             return
         if flags_per_user[update.effective_chat.id]["mandando_descricao_curso"]:
             temp_dados_curso[update.effective_chat.id]['descricao'] = update.effective_message.text
             flags_per_user[update.effective_chat.id]["mandando_descricao_curso"] = False
             flags_per_user[update.effective_chat.id]["mandando_senha_curso"] = True
-            await context.bot.send_message(chat_id=update.effective_chat.id,text="Ok! Agora me diga a senha para os alunos entrarem no seu curso",reply_markup=telegram.InlineKeyboardMarkup(
-                inline_keyboard=[
+            await send_message_on_new_block(update,context,text="Ok! Agora me diga a senha para os alunos entrarem no seu curso",
+                buttons=[
                     [
                         InlineKeyboardButton("não desejo colocar",callback_data="nao_deseja_colocar_senha_em_curso")
                     ],
@@ -160,8 +167,7 @@ async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         InlineKeyboardButton("voltar ao menu",callback_data="voltar_ao_menu")
                     ]
                 ]
-            ))
-            reset_last_message(update.effective_chat.id)
+            )
             return
         if flags_per_user[update.effective_chat.id]["mandando_senha_curso"]:
             temp_dados_curso[update.effective_chat.id]['senha'] = update.effective_message.text
@@ -177,6 +183,31 @@ async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reset_last_message(update.effective_chat.id)
             await menu_curso(curso_id,update,context)
             return
+    if flags_per_user[update.effective_chat.id]['editando_curso']:
+        if flags_per_user[update.effective_chat.id]["mandando_nome_curso"]:
+            id = temp_dados_curso[update.effective_chat.id]['id']
+            call_database_and_execute("UPDATE cursos SET nome = ? WHERE id = ?",[update.effective_message.text,id])
+            reset_flags(user_id=update.effective_chat.id)
+            await send_message_on_new_block(update,context,text="Nome atualizado!")
+            await menu_curso(id,update,context)
+            return
+
+        if flags_per_user[update.effective_chat.id]["mandando_descricao_curso"]:
+            id = temp_dados_curso[update.effective_chat.id]['id']
+            call_database_and_execute("UPDATE cursos SET descricao = ? WHERE id = ?",[update.effective_message.text,id])
+            reset_flags(user_id=update.effective_chat.id)
+            await send_message_on_new_block(update,context,text="Descrição atualizada!")
+            await menu_curso(id,update,context)
+            return
+        
+        if flags_per_user[update.effective_chat.id]['mandando_senha_curso']:
+            id = temp_dados_curso[update.effective_chat.id]['id']
+            call_database_and_execute("UPDATE cursos SET hash_senha = ? WHERE id = ?",[sha256(update.effective_message.text.encode('utf-8')).hexdigest(),id])
+            reset_flags(user_id=update.effective_chat.id)
+            await send_message_on_new_block(update,context,text="Senha atualizada!")
+            await menu_curso(id,update,context)
+
+
     
 
 
@@ -185,25 +216,29 @@ async def menu_curso(id_curso: str,update: Update,context: ContextTypes.DEFAULT_
     função para mostrar o menu de um curso específico
     """
     dados_curso = call_database_and_execute("SELECT * FROM cursos WHERE id = ?",[id_curso])
+    print(dados_curso)
     buttons = [
             [
-                InlineKeyboardButton(text="ver id do curso",callback_data=f"receber_id_curso {dados_curso[0]['id']}")
+                InlineKeyboardButton(text="ver id do curso",callback_data=f"receber_id_curso {id_curso}")
             ],
             [
-                InlineKeyboardButton(text="editar nome",callback_data="editar_nome_curso")
+                InlineKeyboardButton(text="editar nome",callback_data=f"editar_nome_curso {id_curso}")
             ],
             [
-                InlineKeyboardButton(text="editar descrição",callback_data="editar_descricao_curso")
+                InlineKeyboardButton(text="editar senha",callback_data=f"editar_senha {id_curso}")
             ],
             [
-                InlineKeyboardButton(text="ver aulas cadastradas",callback_data="editar_aulas")
+                InlineKeyboardButton(text="editar descrição",callback_data=f"editar_descricao_curso {id_curso}")
+            ],
+            [
+                InlineKeyboardButton(text="ver aulas",callback_data=f"editar_aulas {id_curso}")
             ],
             [
                 InlineKeyboardButton(text="voltar ao menu",callback_data="voltar_ao_menu")
             ],
         ]
-    text = f"O que você gostaria de editar?\n\nCurso atual: {dados_curso[0]['nome']}\n\nDescrição do curso: {dados_curso[0]['descricao']}"
-    await send_message_or_edit_last(update,context,text=text,buttons=buttons,parse_mode=ParseMode.MARKDOWN_V2)
+    text = f"O que você gostaria de editar?\n\nCurso atual: {dados_curso[0]['nome']}\n\nPrecisa de senha? {dados_curso[0]['hash_senha'] != ''}\n\nDescrição do curso: {dados_curso[0]['descricao']}"
+    await send_message_or_edit_last(update,context,text=text,buttons=buttons)
 
 
 async def ver_cursos(update: Update,context: ContextTypes.DEFAULT_TYPE):
@@ -232,7 +267,7 @@ async def criar_curso(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ))
         flags_per_user[update.effective_chat.id]['criando_curso'] = True
         flags_per_user[update.effective_chat.id]['mandando_nome_curso'] = True
-        temp_dados_curso[update.effective_chat.id] = {"nome":"","descricao":"","senha":""}
+        temp_dados_curso[update.effective_chat.id] = {"nome":"","descricao":"","senha":"","id":""}
 
 
 async def nao_deseja_criar_curso(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -270,14 +305,74 @@ async def handle_generic_callback(update: Update, context: ContextTypes.DEFAULT_
     """
     função para lidar com callbacks genéricos ou que possuem algum dado extra (como id do curso por exemplo)
     """
+
+    make_sure_flags_are_init(update.effective_chat.id)
+    reset_temp_curso(update.effective_chat.id)
     print('calling handle generic callback!')
     query = update.callback_query.data
     if len(query.split(' ')) > 1:
-        if query.split()[0] == "ver_curso_especifico":
+        descricao_ordem, dados = query.split()
+        if descricao_ordem == "ver_curso_especifico":
             await menu_curso(query.split()[1],update,context)
             return
-        if query.split()[0] == "receber_id_curso":
+        if descricao_ordem == "receber_id_curso":
             await context.bot.send_message(chat_id=update.effective_chat.id,text=query.split()[1])
+            return
+
+        if descricao_ordem == "editar_nome_curso":
+            await send_message_or_edit_last(update,context,text="Ok! Qual nome você deseja associar a esse curso?",
+                buttons=[
+                    [
+                        InlineKeyboardButton(text="voltar",callback_data=f"ver_curso_especifico {dados}")
+                    ]
+                ]
+            )
+            reset_flags(update.effective_chat.id)
+            temp_dados_curso[update.effective_chat.id]['id'] = dados
+            flags_per_user[update.effective_chat.id]['editando_curso'] = True
+            flags_per_user[update.effective_chat.id]['mandando_nome_curso'] = True
+            return
+        
+        if descricao_ordem == "editar_descricao_curso":
+            await send_message_or_edit_last(update,context,text="Ok! Me diga qual descrição você gostaria de colocar nesse curso...",
+                buttons=[
+                    [
+                        InlineKeyboardButton(text="voltar",callback_data=f"ver_curso_especifico {dados}")
+                    ]
+                ]
+            )
+            reset_flags(update.effective_chat.id)
+            temp_dados_curso[update.effective_chat.id]['id'] = dados
+            flags_per_user[update.effective_chat.id]['editando_curso'] = True
+            flags_per_user[update.effective_chat.id]['mandando_descricao_curso'] = True
+            return
+        if descricao_ordem == 'editar_senha':
+            buttons = [
+                    [
+                        InlineKeyboardButton(text="voltar",callback_data=f"ver_curso_especifico {dados}")
+                    ]
+                ]
+            dados_curso = call_database_and_execute("SELECT hash_senha FROM cursos WHERE id = ?",[dados])
+            if dados_curso[0]["hash_senha"] != "":
+                buttons.append([
+                        InlineKeyboardButton(text="quero remover a senha",callback_data=f"remover_senha {dados}")
+                    ])
+                buttons.reverse()
+            await send_message_or_edit_last(update,context,text="Ok! Me diga a nova senha para entrar nesse curso (os usuários antigos continuarão cadastrados)...",
+                buttons=buttons
+            )
+            reset_flags(update.effective_chat.id)
+            temp_dados_curso[update.effective_chat.id]['id'] = dados
+            flags_per_user[update.effective_chat.id]['editando_curso'] = True
+            flags_per_user[update.effective_chat.id]['mandando_senha_curso'] = True
+            return
+        if descricao_ordem == 'remover_senha':
+            call_database_and_execute("UPDATE cursos SET hash_senha = ? WHERE id = ?",["",dados])
+            reset_flags(update.effective_chat.id)
+            await send_message_on_new_block(update,context,"Senha atualizada!")
+            await menu_curso(dados,update,context)
+            return
+            
 
 
 if __name__ == '__main__':
