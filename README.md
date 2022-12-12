@@ -6,23 +6,14 @@
 
 ### 📋 Pré-requisitos
 
-Para utilizar nosso bot, só é necessario chama-lo no [Telegram]()!
+Esse bot foi desenvolvido para ser usado como uma base para bots pessoais, sendo possível rodar em sua própria máquina.
 
-
-
-## ⚙️ Executando os testes
-
-Explicar como executar os testes automatizados para este sistema.
-
-## 📦 Implantação
-
-Adicione notas adicionais sobre como implantar isso em um sistema ativo
+O projeto é composto de 2 bots, o bot de [criação dos cursos](bot_alunos.py) e o bot de [interação com os alunos](bot_cursos.py). Para rodar cada um, basta colocar o código do seu bot na variável BOT_TOKEN no topo dos arquivos de cada bot.
 
 ## 🛠️ Construído com
 
 Ferramentas utilizadas neste projeto
 * [Python](https://www.python.org) - Linguagem de porgramação
-* [Firebase](https://firebase.google.com/?gclid=Cj0KCQiAvqGcBhCJARIsAFQ5ke7damUmn6HwwOXpFkFdfflo5oYPWLHJUqMLIUwngppxCSalcijVVaIaAqjwEALw_wcB&gclsrc=aw.ds) - Serviço de hospedagem
 * [API do telegram](https://core.telegram.org)
 
 ## 🖇️ Colaborando
