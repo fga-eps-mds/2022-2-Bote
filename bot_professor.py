@@ -301,6 +301,28 @@ async def nao_deseja_senha(update: Update, context: ContextTypes.DEFAULT_TYPE):
     reset_flags(update.effective_chat.id)
     await menu_curso(curso_id,update,context)
 
+async def ver_aulas(id_curso: str,update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
+    função para mostrar as aulas cadastradas ou uma mensagem caso nenhum esteja cadastrada
+    """
+    dados = call_database_and_execute("SELECT * FROM aulas_por_curso WHERE curso_id = ?",[id_curso])
+    if len(dados) == 0:
+        await send_message_or_edit_last(update,context,text="""Vejo que você não cadastrou nenhuma aula nesse curso ainda, gostaria de cadastrar novas aulas?""",buttons=[
+            [
+                InlineKeyboardButton(text="sim, usando Excel",callback_data=f"enviar_aulas_excel {id_curso}")
+            ],
+            [
+                InlineKeyboardButton(text="sim, uma por uma",callback_data=f"enviar_aulas {id_curso}")
+            ],
+            [
+                InlineKeyboardButton(text="voltar",callback_data=f"ver_curso_especifico {id_curso}")
+            ]
+        ])
+
+async def cadastrar_aulas_excel(id_curso: str,update: Update, context: ContextTypes.DEFAULT_TYPE):
+    pass
+    
+
 async def handle_generic_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     função para lidar com callbacks genéricos ou que possuem algum dado extra (como id do curso por exemplo)
