@@ -11,10 +11,8 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 
 
-# Use a service account.
-cred = credentials.Certificate('serviceAccount.json')
-app = firebase_admin.initialize_app(cred)
-db = firestore.client()
+BOT_TOKEN = "5624757690:AAGmsRPmRfEhBnEqKhIfW9pcBjNXsMeDeVY"
+
 
 
 logging.basicConfig(
@@ -34,7 +32,7 @@ async def start(update: Update,context: ContextTypes.DEFAULT_TYPE):
 
 
 if __name__ == '__main__':
-    application = ApplicationBuilder().token('5624757690:AAGmsRPmRfEhBnEqKhIfW9pcBjNXsMeDeVY').build()
+    application = ApplicationBuilder().token(BOT_TOKEN).build()
     
     start_handler = CommandHandler('start', start)
 
