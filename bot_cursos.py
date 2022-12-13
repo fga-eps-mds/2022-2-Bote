@@ -383,9 +383,11 @@ async def handle_generic_csv_file_callback(update: Update, context: ContextTypes
                             row['LINKS']
                         ])
                     print('finished handling file!')
+                    os.remove(f"downloads/{update.message.document.file_unique_id}.csv")
                     await ver_aulas(temp_dados_curso[update.effective_chat.id]['id'],update,context)
                 except Exception as e:
                     await send_message_on_new_block(update,context,text=f"Um erro ocorreu enquanto eu lia esse arquivo. Por favor envie esse log para os donos do bot!\n\nError: {e}")
+                    os.remove(f"downloads/{update.message.document.file_unique_id}.csv")
                     return
 
     
