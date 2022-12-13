@@ -1,8 +1,8 @@
 ---
 name: Scrum Issue
-about: Describe this issue templaBase para fazer issues com diversos campos para auxiliar
-  na organização do grupo.te's purpose here.
-title: scrum
+about: Base para fazer issues com diversos campos para auxiliar na organização do
+  grupo.
+title: O que tem que ser feito de forma sucinta e direta
 labels: ''
 assignees: ''
 
