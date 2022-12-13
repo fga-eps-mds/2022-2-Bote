@@ -14,8 +14,6 @@ import time
 from geral import call_database_and_execute, hash_string
 
 
-BOT_TOKEN = "5507439323:AAGiiQ0_vnqIilIRBPRBtGnS54eje4D5xVE"
-
 
 # definindo como o log vai ser salvo
 logging.basicConfig(
@@ -475,7 +473,7 @@ async def handle_generic_callback(update: Update, context: ContextTypes.DEFAULT_
 
 if __name__ == '__main__':
 
-    application = ApplicationBuilder().token(BOT_TOKEN).build()
+    application = ApplicationBuilder().token('5507439323:AAGiiQ0_vnqIilIRBPRBtGnS54eje4D5xVE').build()
     
     
     
