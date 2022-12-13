@@ -13,8 +13,6 @@ import csv
 import time
 
 
-BOT_TOKEN = "5507439323:AAGiiQ0_vnqIilIRBPRBtGnS54eje4D5xVE"
-
 
 # definindo como o log vai ser salvo
 logging.basicConfig(
@@ -385,11 +383,9 @@ async def handle_generic_csv_file_callback(update: Update, context: ContextTypes
                             row['LINKS']
                         ])
                     print('finished handling file!')
-                    os.remove(f"downloads/{update.message.document.file_unique_id}.csv")
                     await ver_aulas(temp_dados_curso[update.effective_chat.id]['id'],update,context)
                 except Exception as e:
                     await send_message_on_new_block(update,context,text=f"Um erro ocorreu enquanto eu lia esse arquivo. Por favor envie esse log para os donos do bot!\n\nError: {e}")
-                    os.remove(f"downloads/{update.message.document.file_unique_id}.csv")
                     return
 
     
@@ -516,7 +512,7 @@ if __name__ == '__main__':
             aulas_completas TEXT
         )""")
 
-    application = ApplicationBuilder().token(BOT_TOKEN).build()
+    application = ApplicationBuilder().token('5507439323:AAGiiQ0_vnqIilIRBPRBtGnS54eje4D5xVE').build()
     
     
     
