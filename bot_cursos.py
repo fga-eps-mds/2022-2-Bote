@@ -13,8 +13,6 @@ import csv
 import time
 
 
-BOT_TOKEN = "5507439323:AAGiiQ0_vnqIilIRBPRBtGnS54eje4D5xVE"
-
 
 # definindo como o log vai ser salvo
 logging.basicConfig(
@@ -516,7 +514,7 @@ if __name__ == '__main__':
             aulas_completas TEXT
         )""")
 
-    application = ApplicationBuilder().token(BOT_TOKEN).build()
+    application = ApplicationBuilder().token('5507439323:AAGiiQ0_vnqIilIRBPRBtGnS54eje4D5xVE').build()
     
     
     
