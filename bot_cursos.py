@@ -6,11 +6,12 @@ import telegram
 from telegram.constants import ParseMode
 import sqlite3 as sql
 import os
-from hashlib import sha256
 from typing import List
 from copy import deepcopy
 import csv
 import time
+
+from geral import call_database_and_execute, hash_string
 
 
 BOT_TOKEN = "5507439323:AAGiiQ0_vnqIilIRBPRBtGnS54eje4D5xVE"
@@ -33,16 +34,6 @@ flags_per_user = {}
 temp_dados_curso = {}
 
 
-def call_database_and_execute(statement,parameters = []) -> List[sql.Row]:
-    """função para auxiliar no uso do banco de dados SQL"""
-    db = sql.connect("database.db")
-    db.row_factory = sql.Row
-    data = db.cursor().execute(statement,parameters)
-    
-    final_data =  data.fetchall()
-    db.commit()
-    db.close()
-    return final_data
 
 flags = {
     "criando_curso":False,
@@ -177,11 +168,11 @@ async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
         if flags_per_user[update.effective_chat.id]["mandando_senha_curso"]:
             temp_dados_curso[update.effective_chat.id]['senha'] = update.effective_message.text
-            curso_id = sha256((str(update.effective_chat.id) + "curso" + temp_dados_curso[update.effective_chat.id]['nome']).encode('utf-8')).hexdigest()[:15]
+            curso_id = hash_string(str(update.effective_chat.id) + "curso" + temp_dados_curso[update.effective_chat.id]['nome'])
             call_database_and_execute("INSERT INTO cursos (nome,descricao,hash_senha,dono_id,id) VALUES (?,?,?,?,?)",[
                 temp_dados_curso[update.effective_chat.id]["nome"],
                 temp_dados_curso[update.effective_chat.id]["descricao"],
-                sha256(temp_dados_curso[update.effective_chat.id]["senha"].encode('utf-8')).hexdigest(),
+                hash_string(temp_dados_curso[update.effective_chat.id]["senha"]),
                 update.effective_chat.id,
                 curso_id
             ])
@@ -208,7 +199,7 @@ async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
         if flags_per_user[update.effective_chat.id]['mandando_senha_curso']:
             id = temp_dados_curso[update.effective_chat.id]['id']
-            call_database_and_execute("UPDATE cursos SET hash_senha = ? WHERE id = ?",[sha256(update.effective_message.text.encode('utf-8')).hexdigest(),id])
+            call_database_and_execute("UPDATE cursos SET hash_senha = ? WHERE id = ?",[hash_string(update.effective_message.text),id])
             reset_flags(user_id=update.effective_chat.id)
             await send_message_on_new_block(update,context,text="Senha atualizada!")
             await menu_curso(id,update,context)
@@ -296,7 +287,7 @@ async def nao_deseja_senha(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     função quando o usuário deseja criar um curso sem senha
     """
-    curso_id = sha256((str(update.effective_chat.id) + "curso" + temp_dados_curso[update.effective_chat.id]['nome']).encode('utf-8')).hexdigest()[:15]
+    curso_id = hash_string(str(update.effective_chat.id) + "curso" + temp_dados_curso[update.effective_chat.id]['nome'])
     call_database_and_execute("INSERT INTO cursos (nome,descricao,hash_senha,dono_id,id) VALUES (?,?,?,?,?)",[
         temp_dados_curso[update.effective_chat.id]["nome"],
         temp_dados_curso[update.effective_chat.id]["descricao"],
@@ -378,7 +369,7 @@ async def handle_generic_csv_file_callback(update: Update, context: ContextTypes
                     for row in rows:
                         
                         call_database_and_execute("INSERT INTO aulas_por_curso (aula_id,curso_id,titulo,descricao,links) VALUES (?,?,?,?,?)",[
-                            sha256((f'{update.effective_chat.id}_{time.time()}').encode('utf-8')).hexdigest()[:15],
+                            hash_string(f'{update.effective_chat.id}_{time.time()}'),
                             temp_dados_curso[update.effective_chat.id]['id'],
                             row["TITULO"],
                             row["DESCRICAO"],
@@ -483,38 +474,6 @@ async def handle_generic_callback(update: Update, context: ContextTypes.DEFAULT_
 
 
 if __name__ == '__main__':
-    
-    if not os.path.exists("database.db"):
-        #criando o banco de dados caso não exista ainda
-        call_database_and_execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            user_id INTEGER PRIMARY KEY
-        )""")
-
-        call_database_and_execute("""
-        CREATE TABLE IF NOT EXISTS cursos (
-            nome TEXT,
-            descricao TEXT,
-            dono_id INTEGER,
-            hash_senha TEXT,
-            id TEXT
-        )""")
-
-        call_database_and_execute("""
-        CREATE TABLE IF NOT EXISTS aulas_por_curso (
-            aula_id TEXT,
-            curso_id TEXT,
-            titulo TEXT,
-            descricao TEXT,
-            links TEXT
-        )""")
-
-        call_database_and_execute("""
-        CREATE TABLE IF NOT EXISTS alunos_por_curso (
-            aluno_id INTEGER,
-            curso_id TEXT,
-            aulas_completas TEXT
-        )""")
 
     application = ApplicationBuilder().token(BOT_TOKEN).build()
     
