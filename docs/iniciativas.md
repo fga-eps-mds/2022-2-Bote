@@ -30,7 +30,6 @@
             <p>Acompanhamento dos alunos</p>
         </div> 
         <div class=user_story>
-            <p> - eu, como usuário, gostaria de adicionar uma planilha com os alunos do curso. </p>
             <p> - eu, como usuário, gostaria de visualizar os dados dos alunos do curso. </p>
             <p> - eu, como usuário, gostaria de visualizar o progresso dos alunos do curso. </p>
         </div>       
@@ -49,6 +48,7 @@
         </div>
         <div class=user_story>
         <p class="title1">User Story</p>
+            <p> - eu, como usuário, gostaria de me inscrever em um curso. </p>
             <p> - eu, como usuário, gostaria de participar de vários cursos e poder acessá-los a qualquer momento. </p>
         </div>
         <div class=feature>
