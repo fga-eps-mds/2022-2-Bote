@@ -1,4 +1,9 @@
-# Squad05 - Bot para o telegram
+<div align="center">
+ 
+  ![Bote (1)](https://user-images.githubusercontent.com/98557500/207730448-b865fa5d-c884-4c5b-a800-b694ab4038c2.png)
+
+</div>
+<h1 align="center"> Bote </h1>
 
 **Nosso projeto busca facilitar para o professor o envio de materiais para os alunos de um curso, fazendo com que eles recebam os conteúdos de forma gradual de acordo com sua evolução no curso.**
 
@@ -10,7 +15,9 @@ Esse bot foi desenvolvido para ser usado como uma base para bots pessoais, sendo
 
 O projeto é composto de 2 bots, o bot de [criação dos cursos](bot_alunos.py) e o bot de [interação com os alunos](bot_cursos.py). Para rodar cada um, basta colocar o código do seu bot na variável BOT_TOKEN no topo dos arquivos de cada bot.
 
+
 ## 🛠️ Construído com
+
 
 Ferramentas utilizadas neste projeto
 * [Python](https://www.python.org) - Linguagem de porgramação
@@ -18,7 +25,8 @@ Ferramentas utilizadas neste projeto
 
 ## 🖇️ Colaborando
 
-Por favor, leia o ... para obter detalhes sobre o nosso código de conduta e o processo para nos enviar pedidos de solicitação.
+Por favor, leia o ... para obter detalhes sob
+re o nosso código de conduta e o processo para nos enviar pedidos de solicitação.
 
 ## 📌 Versão
 
