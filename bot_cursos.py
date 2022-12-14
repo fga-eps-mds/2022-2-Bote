@@ -85,7 +85,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     data = call_database_and_execute("SELECT * FROM users WHERE user_id = ?",(update.effective_user.id,))
     reset_flags(update.effective_chat.id)
     reset_last_message(update.effective_chat.id)
-    message = """Bem vindo ao auto cursos bot!
+    message = """Olá! Sou o Bote, o salva-vidas dos seus cursos!
     
 """
     message += "Sou um bot para criar e administrar cursos pelo Telegram!\n\n"
@@ -322,6 +322,13 @@ async def ver_aulas(id_curso: str,update: Update, context: ContextTypes.DEFAULT_
         await send_message_or_edit_last(update,context,text="Qual aula você gostaria de editar?",buttons=buttons)
         return
 
+async def ver_aula_especifica(id_aula: str,update: Update, context: ContextTypes.DEFAULT_TYPE):
+    make_sure_flags_are_init(update.effective_chat.id)
+
+    dados_aula = call_database_and_execute("SELECT * FROM aulas_por_curso WHERE aula_id = ?",[id_aula])
+    contagem_alunos = call_database_and_execute("SELECT COUNT(*) FROM alunos_por_curso WHERE ")
+    
+
 async def cadastrar_aulas_excel(id_curso: str,update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     função para direcionar o usuário sobre como formatar o arquivo excel e processar os dados
@@ -456,7 +463,7 @@ async def handle_generic_callback(update: Update, context: ContextTypes.DEFAULT_
             await menu_curso(dados,update,context)
             return
 
-        if descricao_ordem == "editar_aulas":
+        if descricao_ordem == "editar_aulas" or descricao_ordem == "ver_aulas":
             await ver_aulas(dados,update,context)
             return
 
