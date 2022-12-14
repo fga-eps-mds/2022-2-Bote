@@ -5,6 +5,15 @@
 </div>
 <h1 align="center"> Bote </h1>
 
+<p align="center>
+          
+![GitHub top language](https://img.shields.io/github/languages/top/fga-eps-mds/2022-2-Bote?style=for-the-badge)
+![GitHub contributors](https://img.shields.io/github/contributors/fga-eps-mds/2022-2-Bote?style=for-the-badge)
+![GitHub issues](https://img.shields.io/github/issues-raw/fga-eps-mds/2022-2-Bote?style=for-the-badge)
+![GitHub last commit](https://img.shields.io/github/last-commit/fga-eps-mds/2022-2-Bote?style=for-the-badge)
+![GitHub closed issues](https://img.shields.io/github/issues-closed-raw/fga-eps-mds/2022-2-Bote?style=for-the-badge)
+          </p>
+
 **Nosso projeto busca facilitar para o professor o envio de materiais para os alunos de um curso, fazendo com que eles recebam os conteúdos de forma gradual de acordo com sua evolução no curso.**
 
 ## 🚀 Começando
