@@ -77,7 +77,7 @@ async def start(update: Update,context: ContextTypes.DEFAULT_TYPE):
 
     if len(dados) == 0:
 
-        await send_message_or_edit_last(update,context,text="Olá! Sou o __nome__, um bot para te auxiliar nos seus cursos!\n\nGostaria de entrar em um curso?",buttons=[
+        await send_message_or_edit_last(update,context,text="Olá! Sou o Botezinho, um bot para te levar pelo rio do conhecimento!\n\nGostaria de entrar em um curso?",buttons=[
             [
                 InlineKeyboardButton(text="sim",callback_data="pegar_codigo_curso")
             ],
@@ -142,8 +142,9 @@ async def handler_generic_message(update: Update, context: ContextTypes.DEFAULT_
 
 async def mostrar_curso(id_curso: str,update: Update,context: ContextTypes.DEFAULT_TYPE):
     make_sure_flags_are_init(update.effective_chat.id)
-    #TODO
-    pass
+    dados_curso = call_database_and_execute("SELECT * FROM cursos WHERE curso_id = ?",[id_curso])
+
+
 
  
 if __name__ == '__main__':

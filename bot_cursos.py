@@ -87,7 +87,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     data = call_database_and_execute("SELECT * FROM users WHERE user_id = ?",(update.effective_user.id,))
     reset_flags(update.effective_chat.id)
     reset_last_message(update.effective_chat.id)
-    message = """Bem vindo ao auto cursos bot!
+    message = """Olá! Sou o Bote, o salva-vidas dos seus cursos!
     
 """
     message += "Sou um bot para criar e administrar cursos pelo Telegram!\n\n"
@@ -458,7 +458,7 @@ async def handle_generic_callback(update: Update, context: ContextTypes.DEFAULT_
             await menu_curso(dados,update,context)
             return
 
-        if descricao_ordem == "editar_aulas":
+        if descricao_ordem == "editar_aulas" or descricao_ordem == "ver_aulas":
             await ver_aulas(dados,update,context)
             return
 
