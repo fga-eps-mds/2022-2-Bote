@@ -322,6 +322,13 @@ async def ver_aulas(id_curso: str,update: Update, context: ContextTypes.DEFAULT_
         await send_message_or_edit_last(update,context,text="Qual aula você gostaria de editar?",buttons=buttons)
         return
 
+async def ver_aula_especifica(id_aula: str,update: Update, context: ContextTypes.DEFAULT_TYPE):
+    make_sure_flags_are_init(update.effective_chat.id)
+
+    dados_aula = call_database_and_execute("SELECT * FROM aulas_por_curso WHERE aula_id = ?",[id_aula])
+    contagem_alunos = call_database_and_execute("SELECT COUNT(*) FROM alunos_por_curso WHERE ")
+    
+
 async def cadastrar_aulas_excel(id_curso: str,update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     função para direcionar o usuário sobre como formatar o arquivo excel e processar os dados
