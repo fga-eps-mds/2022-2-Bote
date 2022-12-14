@@ -14,7 +14,17 @@
 ![GitHub closed issues](https://img.shields.io/github/issues-closed-raw/fga-eps-mds/2022-2-Bote?style=for-the-badge)
           </p>
 
-**Nosso projeto busca facilitar para o professor o envio de materiais para os alunos de um curso, fazendo com que eles recebam os conteúdos de forma gradual de acordo com sua evolução no curso.**
+## Descrição do Projeto
+Projeto em desenvolvimento para a disciplina de Métodos de Desenvolvimento de Software, ministrada na Universidade de Brasília (UnB) - Faculdade do Gama (FGA), no segundo semestre letivo de 2022. 
+O Bote é um bot para Telegram que visa facilitar o compartilhamento de materiais de um curso ao enviá-los de forma automática para os alunos matriculados.
+          
+O Bote permitirá que professores façam upload de materiais e estabeleçam uma ordem para que sejam enviados automaticamente aos alunos. O critério para compartilhamento de um novo bloco de materiais é que o aluno tenha confirmado que já estudou o material anterior.
+          
+## Status do Projeto
+
+<h4 align="center"> 
+    :construction:  Projeto em construção  :construction:
+</h4>
 
 ## 🚀 Começando
 
