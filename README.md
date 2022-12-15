@@ -56,7 +56,6 @@ Conheça mais sobre o projeto em nossa [GitPage](https://fga-eps-mds.github.io/2
 
 - ``Python``
 - ``API do Telegram``
-- ``Firebase``
 - ``Metodologias Ágeis``
               
 # ✒️ Autores
