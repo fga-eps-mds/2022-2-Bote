@@ -12,7 +12,7 @@
 ![GitHub closed issues](https://img.shields.io/github/issues-closed-raw/fga-eps-mds/2022-2-Bote?style=for-the-badge)
 
 
-# Descrição do Projeto
+# 🛶 Descrição do Projeto
 Projeto em desenvolvimento para a disciplina de Métodos de Desenvolvimento de Software, ministrada na Universidade de Brasília (UnB) - Faculdade do Gama (FGA), no segundo semestre letivo de 2022. 
 O Bote é um bot para Telegram que visa facilitar o compartilhamento de materiais de um curso ao enviá-los de forma automática para os alunos matriculados.
           
@@ -22,7 +22,7 @@ O projeto é composto de 2 bots, o bot de [criação dos cursos](bot_alunos.py) 
 
 Conheça mais sobre o projeto em nossa [GitPage](https://fga-eps-mds.github.io/2022-2-Bote/#/?id).
           
-# Status do Projeto
+# 📈 Status do Projeto
 
 <h4 align="center"> 
     :construction:  Projeto em construção  :construction:
@@ -52,7 +52,7 @@ Conheça mais sobre o projeto em nossa [GitPage](https://fga-eps-mds.github.io/2
     :construction:  em construção  :construction:
 </h4>
                   
-## ✔️ Técnicas e tecnologias utilizadas
+# ✔️ Técnicas e tecnologias utilizadas
 
 - ``Python``
 - ``API do Telegram``
@@ -69,11 +69,11 @@ Conheça mais sobre o projeto em nossa [GitPage](https://fga-eps-mds.github.io/2
 
 É possível ver a lista de todos os [colaboradores](https://github.com/fga-eps-mds/2022-2-Squad05/colaboradores) que participaram deste projeto.
 
-## 📄 Licença
+# 📄 Licença
 
 Este projeto está sob a licença [MIT](https://opensource.org/licenses/MIT)
 
-## 🎁 Expressões de gratidão
+# 🎁 Expressões de gratidão
 
 * Conte a outras pessoas sobre este projeto 📢 - a sua divulgação é valiosa para nós.
 * Convide alguém da equipe para um café ☕ - nós não mordemos! 
