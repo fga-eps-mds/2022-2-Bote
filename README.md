@@ -19,6 +19,8 @@ O Bote é um bot para Telegram que visa facilitar o compartilhamento de materiai
 O Bote permitirá que professores façam upload de materiais e estabeleçam uma ordem para que sejam enviados automaticamente aos alunos. O critério para compartilhamento de um novo bloco de materiais é que o aluno tenha confirmado que já estudou o material anterior.
 
 O projeto é composto de 2 bots, o bot de [criação dos cursos](bot_alunos.py) e o bot de [interação com os alunos](bot_cursos.py). Para rodar cada um, basta colocar o código do seu bot na variável BOT_TOKEN no topo dos arquivos de cada bot.
+
+Conheça mais sobre o projeto em nossa [GitPage](https://fga-eps-mds.github.io/2022-2-Bote/#/?id).
           
 # Status do Projeto
 
