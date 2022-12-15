@@ -36,7 +36,8 @@ flags_per_user = {}
 
 flags = {
     "entrando_em_curso":False,
-        "mandando_codigo":False
+        "mandando_codigo":False,
+        "mandando_senha":False
 }
 
 def make_sure_flags_are_init(user_id):
@@ -77,7 +78,7 @@ async def start(update: Update,context: ContextTypes.DEFAULT_TYPE):
 
     if len(dados) == 0:
 
-        await send_message_or_edit_last(update,context,text="Olá! Sou o __nome__, um bot para te auxiliar nos seus cursos!\n\nGostaria de entrar em um curso?",buttons=[
+        await send_message_or_edit_last(update,context,text="Olá! Sou o Botezinho, um bot para te levar pelo rio do conhecimento!\n\nGostaria de entrar em um curso?",buttons=[
             [
                 InlineKeyboardButton(text="sim",callback_data="pegar_codigo_curso")
             ],
@@ -91,8 +92,19 @@ async def start(update: Update,context: ContextTypes.DEFAULT_TYPE):
 
 async def main_menu(update: Update,context: ContextTypes.DEFAULT_TYPE):
     make_sure_flags_are_init(update.effective_chat.id)
+    cursos_usuario = call_database_and_execute("SELECT COUNT(*) FROM alunos_por_curso WHERE aluno_id = ?",[update.effective_chat.id])
     #TODO
-    pass
+    buttons = [
+        [
+            InlineKeyboardButton("entrar em um curso",callback_data="pegar_codigo_curso")
+        ]
+    ]
+    if len(cursos_usuario) > 0:
+        buttons.append([
+            InlineKeyboardButton("ver meus cursos",callback_data="ver_cursos")
+        ])
+    
+    await send_message_or_edit_last(update,context,text="Olá! Sou o Botezinho, um bot para te levar pelo rio do conhecimento!\n\nComo posso te ajudar hoje?",buttons=buttons)
 
 async def pegar_codigo_curso(update: Update,context: ContextTypes.DEFAULT_TYPE):
     make_sure_flags_are_init(update.effective_chat.id)
@@ -109,12 +121,27 @@ async def nao_deseja_entrar(update: Update,context: ContextTypes.DEFAULT_TYPE):
     await send_message_or_edit_last(update,context,text="Tudo certo! Se precisar de mim, só mandar uma mensagem com /start nesse chat e eu virei te ajudar!")
     reset_flags(update.effective_chat.id)
 
+async def ver_cursos(update: Update,context: ContextTypes.DEFAULT_TYPE):
+    make_sure_flags_are_init(update.effective_chat.id)
+    cursos_participantes = call_database_and_execute("SELECT curso_id FROM alunos_por_curso WHERE aluno_id = ?",[update.effective_chat.id])
+    dados_cursos = call_database_and_execute(f"SELECT * FROM cursos WHERE curso_id IN ({','.join(list(map(lambda p: '?',cursos_participantes)))})",list(map(lambda p: p['curso_id'],cursos_participantes)))
+
+    buttons = [[InlineKeyboardButton(text=curso['nome'],callback_data=f"ver_curso {curso['curso_id']}")] for curso in dados_cursos]
+
+    buttons.append([
+        InlineKeyboardButton(text="voltar ao menu",callback_data="voltar_ao_menu")
+    ])
+
+    text = "Qual curso você gostaria de ver hoje?"
+
+    await send_message_or_edit_last(update,context,text=text,buttons=buttons)
+
 async def handler_generic_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     make_sure_flags_are_init(update.effective_chat.id)
 
     if flags_per_user[update.effective_chat.id]["entrando_em_curso"]:
         if flags_per_user[update.effective_chat.id]["mandando_codigo"]:
-            curso_existe = call_database_and_execute("SELECT * FROM cursos WHERE curso_id = ?",[update.effective_message.text])
+            curso_existe = call_database_and_execute("SELECT * FROM cursos WHERE id = ?",[update.effective_message.text])
             if len(curso_existe) == 0:
                 await send_message_on_new_block(update,context,text="Não consegui encontrar um curso com esse id, por favor tente novamente...")
                 return
@@ -126,15 +153,15 @@ async def handler_generic_message(update: Update, context: ContextTypes.DEFAULT_
 
                 context.user_data['codigo'] = update.effective_message.text
                 return
-            call_database_and_execute("INSERT INTO alunos_por_curso (aluno_id,curso_id,aulas_completas)",[update.effective_chat.id,update.effective_message.text,""])
+            call_database_and_execute("INSERT INTO alunos_por_curso (aluno_id,curso_id,aulas_completas) VALUES (?,?,?)",[update.effective_chat.id,update.effective_message.text,""])
 
             await mostrar_curso(update.effective_message.text,update,context)
 
         if flags_per_user[update.effective_chat.id]["mandando_senha"]:
-            dados_curso = call_database_and_execute("SELECT hash_senha FROM cursos WHERE curso_id = ?",[context.user_data["codigo"]])
+            dados_curso = call_database_and_execute("SELECT hash_senha FROM cursos WHERE id = ?",[context.user_data["codigo"]])
 
             if dados_curso["hash_senha"] == hash_string(update.effective_message.text):
-                call_database_and_execute("INSERT INTO alunos_por_curso (aluno_id,curso_id,aulas_completas)",[update.effective_chat.id,context.user_data["codigo"],""])
+                call_database_and_execute("INSERT INTO alunos_por_curso (aluno_id,curso_id,aulas_completas) VALUES (?,?,?)",[update.effective_chat.id,context.user_data["codigo"],""])
                 await mostrar_curso(context.user_data["codigo"],update,context)
             else:
                 await send_message_on_new_block(update,context,text="A senha está incorreta, por favor tente novamente...")
@@ -142,8 +169,29 @@ async def handler_generic_message(update: Update, context: ContextTypes.DEFAULT_
 
 async def mostrar_curso(id_curso: str,update: Update,context: ContextTypes.DEFAULT_TYPE):
     make_sure_flags_are_init(update.effective_chat.id)
-    #TODO
+    dados_curso = call_database_and_execute("SELECT * FROM cursos WHERE id = ?",[id_curso])[0]
+    dados_aluno = call_database_and_execute("SELECT * FROM alunos_por_curso WHERE aluno_id = ? AND curso_id = ?",[update.effective_chat.id,id_curso])[0]
     pass
+    text= f"Bem vindo ao curso {dados_curso['nome']}!\n\n{dados_curso['descricao']}\n\nPara qual área você deseja seguir?"
+
+    buttons= [
+        [
+            InlineKeyboardButton(text="ver aulas",callback_data=f"ver_aulas_curso {id_curso}")
+        ]
+    ]
+    aulas_completas = dados_aluno['aulas_completas'].split(" ")
+    if len(aulas_completas) > 0:
+        buttons.append(
+            [
+                InlineKeyboardButton(text=f"continuar aula {len(aulas_completas)}",callback_data="ver_aula {}")
+            ]
+        )
+
+    await send_message_or_edit_last(update,context,text,buttons)
+
+async def voltar_ao_menu(update: Update,context: ContextTypes.DEFAULT_TYPE):
+    make_sure_flags_are_init(update.effective_chat.id)
+    await main_menu(update,context)
 
  
 if __name__ == '__main__':
@@ -154,6 +202,8 @@ if __name__ == '__main__':
     application.add_handler(start_handler)
     application.add_handler(CallbackQueryHandler(pegar_codigo_curso,pattern="pegar_codigo_curso"))
     application.add_handler(CallbackQueryHandler(nao_deseja_entrar,pattern="nao_deseja_entrar"))
+    application.add_handler(CallbackQueryHandler(voltar_ao_menu,pattern="voltar_ao_menu"))
+    
     application.add_handler(MessageHandler(filters.TEXT,handler_generic_message))
 
     application.run_polling()
