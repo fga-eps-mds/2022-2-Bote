@@ -1,6 +1,6 @@
 <div class="body">
     <h1 class="title">Bote</h1>
-    <p>O Bote é um projeto que propõe criar uma forma de gerenciamento de envio de conteúdos, de forma a facilitar a gestão de um grande número de destinatários. Desta forma, foi criado um sistema de professor e aluno, onde o professor é o remetente, responsável por cadastrar os materiais a serem enviados para uma lista de alunos determinados por ele. Essa ferramenta disponibiliza os conteúdos de forma gradual, a medida que o aluno evolui no curso. O Bote possui o papel de transportar os conteúdos para todos os destinos.</p>
+    <p>O Bote é um projeto que propõe criar uma forma de gerenciamento de envio de conteúdos, de forma a facilitar a gestão de um grande número de destinatários. Desta forma, foi criado um sistema de professor e aluno, onde o professor é o remetente, responsável por cadastrar os materiais a serem enviados para os alunos que se cadastrarem no curso. Essa ferramenta disponibiliza os conteúdos de forma gradual, a medida que o aluno evolui no curso. Use o Bote para um transporte seguro dos seus conteúdos para todos os destinos.</p>
 
 <h2 class="title">Contribuidores</h1>
 
