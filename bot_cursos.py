@@ -8,7 +8,7 @@ import sqlite3 as sql
 import os
 from typing import List
 from copy import deepcopy
-import csv
+import pandas as pd
 import time
 
 from geral import call_database_and_execute, hash_string
@@ -317,16 +317,35 @@ async def ver_aulas(id_curso: str,update: Update, context: ContextTypes.DEFAULT_
     else:
         buttons = [[InlineKeyboardButton(f'{i + 1} {data["titulo"]}',callback_data=f"ver_aula {data['aula_id']}")] for i,data in enumerate(dados)]
 
+        #TODO
+        buttons.append([InlineKeyboardButton('adicionar aula',callback_data=f"adicionar_aula {id_curso}")])
+
         buttons.append([InlineKeyboardButton("voltar",callback_data=f"ver_curso_especifico {id_curso}")])
 
-        await send_message_or_edit_last(update,context,text="Qual aula você gostaria de editar?",buttons=buttons)
+
+        await send_message_or_edit_last(update,context,text="Qual aula você gostaria de ver?",buttons=buttons)
         return
 
 async def ver_aula_especifica(id_aula: str,update: Update, context: ContextTypes.DEFAULT_TYPE):
     make_sure_flags_are_init(update.effective_chat.id)
 
     dados_aula = call_database_and_execute("SELECT * FROM aulas_por_curso WHERE aula_id = ?",[id_aula])
-    contagem_alunos = call_database_and_execute("SELECT COUNT(*) FROM alunos_por_curso WHERE ")
+    id_curso = dados_aula[0]['curso_id']
+
+    await send_message_or_edit_last(update,context,text=f"Titulo da aula:\n{dados_aula[0]['titulo']}\n\nDescrição:\n{dados_aula[0]['descricao']}\n\nLinks extras:\n{dados_aula[0]['links']}",buttons=[
+        [
+            InlineKeyboardButton(text="editar titulo",callback_data=f"editar_titulo_aula {id_aula}")
+        ],
+        [
+            InlineKeyboardButton(text="editar descrição",callback_data=f"editar_descricao_aula {id_aula}")
+        ],
+        [
+            InlineKeyboardButton(text="editar links",callback_data=f"editar_links_aula {id_aula}")
+        ],
+        [
+            InlineKeyboardButton(text="voltar",callback_data=f"ver_aulas {id_curso}")
+        ]
+    ])
     
 
 async def cadastrar_aulas_excel(id_curso: str,update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -348,45 +367,57 @@ em letra maiúscula exatamente como está escrito acima em um arquivo ".csv". Ai
     temp_dados_curso[update.effective_chat.id]['id'] = id_curso
     return
 
-async def handle_generic_csv_file_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def handle_generic_excel_file_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not os.path.exists("downloads"):
         os.mkdir('downloads')
     if flags_per_user[update.effective_chat.id]['editando_aulas']:
         if flags_per_user[update.effective_chat.id]['mandando_arquivo']:
-            await (await context.bot.get_file(update.message.document)).download(f"downloads/{update.message.document.file_unique_id}.csv")
+            await (await context.bot.get_file(update.message.document)).download(f"downloads/{update.message.document.file_unique_id}.xlsx")
 
-            with open(f"downloads/{update.message.document.file_unique_id}.csv",'r') as f:
-                try:
-                    file = csv.DictReader(f)
-                    rows = []
-                    for row in file:
-                        if "TITULO" not in row.keys():
-                            await send_message_on_new_block(update,context,text=f"O seu arquivo está com o campo 'TITULO' inexistente. Por favor corrija e tente novamente")
-                            return
-                        if "DESCRICAO" not in row.keys():
-                            await send_message_on_new_block(update,context,text=f"O seu arquivo está com o campo 'DESCRICAO' inexistente. Por favor corrija e tente novamente")
-                            return
-                        if "LINKS" not in row.keys():
-                            await send_message_on_new_block(update,context,text=f"O seu arquivo está com o campo 'LINKS' inexistente. Por favor corrija e tente novamente")
-                            return
-                        rows.append(row)
-                    
-                    for row in rows:
-                        
-                        call_database_and_execute("INSERT INTO aulas_por_curso (aula_id,curso_id,titulo,descricao,links) VALUES (?,?,?,?,?)",[
-                            hash_string(f'{update.effective_chat.id}_{time.time()}'),
-                            temp_dados_curso[update.effective_chat.id]['id'],
-                            row["TITULO"],
-                            row["DESCRICAO"],
-                            row['LINKS']
-                        ])
-                    print('finished handling file!')
-                    os.remove(f"downloads/{update.message.document.file_unique_id}.csv")
-                    await ver_aulas(temp_dados_curso[update.effective_chat.id]['id'],update,context)
-                except Exception as e:
-                    await send_message_on_new_block(update,context,text=f"Um erro ocorreu enquanto eu lia esse arquivo. Por favor envie esse log para os donos do bot!\n\nError: {e}")
-                    os.remove(f"downloads/{update.message.document.file_unique_id}.csv")
-                    return
+            try:
+
+                file = pd.read_excel(f"downloads/{update.message.document.file_unique_id}.xlsx")
+                expected = ["TITULO","DESCRICAO","LINKS"]
+                inner_rows = []
+
+                dictionary = {}
+                for column in file:
+                    titulo = column.title()
+                    if column.title() not in expected:
+                        if file[column][0] not in expected:
+                            await send_message_on_new_block(update,context,text=f"O seu arquivo não está no formato correto. Por favor, cheque os nomes das colunas e tente novamente")
+                        titulo = file[column][0]
+                    dictionary[titulo] = []
+
+                    for row in file[column]:
+                        if row == titulo:
+                            continue
+                        dictionary[titulo].append(row)
+                
+                rows = []
+                for i in range(len(dictionary['TITULO'])):
+                    v = {}
+                    for key in dictionary.keys():
+                        v[key] = dictionary[key][i]
+                    rows.append(v)
+
+                print(rows)
+                for row in rows:
+                    print(row)
+                    call_database_and_execute("INSERT INTO aulas_por_curso (aula_id,curso_id,titulo,descricao,links) VALUES (?,?,?,?,?)",[
+                        hash_string(f'{update.effective_chat.id}_{time.time()}'),
+                        temp_dados_curso[update.effective_chat.id]['id'],
+                        row["TITULO"],
+                        row["DESCRICAO"],
+                        row['LINKS']
+                    ])
+                print('finished handling file!')
+                os.remove(f"downloads/{update.message.document.file_unique_id}.xlsx")
+                await ver_aulas(temp_dados_curso[update.effective_chat.id]['id'],update,context)
+            except Exception as e:
+                await send_message_on_new_block(update,context,text=f"Um erro ocorreu enquanto eu lia esse arquivo. Por favor envie esse log para os donos do bot!\n\nError: {e}")
+                os.remove(f"downloads/{update.message.document.file_unique_id}.csv")
+                return
 
     
 
@@ -474,6 +505,8 @@ async def handle_generic_callback(update: Update, context: ContextTypes.DEFAULT_
         if descricao_ordem == "enviar_aulas":
             #TODO
             pass
+        if descricao_ordem == 'ver_aula':
+            await ver_aula_especifica(dados,update,context)
 
             
 
@@ -488,7 +521,7 @@ if __name__ == '__main__':
     start_handler = CommandHandler('start', start)
 
     application.add_handler(start_handler)
-    application.add_handler(MessageHandler(callback=handle_generic_csv_file_callback,filters=filters.Document.FileExtension("csv")))
+    application.add_handler(MessageHandler(callback=handle_generic_excel_file_callback,filters=filters.Document.FileExtension("xlsx")))
     application.add_handler(MessageHandler(callback=message_handler,filters=filters.TEXT))
     application.add_handler(CallbackQueryHandler(callback=criar_curso,pattern='criar_curso'))
     application.add_handler(CallbackQueryHandler(callback=nao_deseja_criar_curso,pattern='nao_deseja_criar_curso'))
