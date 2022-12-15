@@ -92,13 +92,14 @@ async def start(update: Update,context: ContextTypes.DEFAULT_TYPE):
 
 async def main_menu(update: Update,context: ContextTypes.DEFAULT_TYPE):
     make_sure_flags_are_init(update.effective_chat.id)
-    cursos_usuario = call_database_and_execute("SELECT COUNT(*) FROM alunos_por_curso WHERE aluno_id = ?",[update.effective_chat.id])
+    cursos_usuario = call_database_and_execute("SELECT curso_id FROM alunos_por_curso WHERE aluno_id = ?",[update.effective_chat.id])
     #TODO
     buttons = [
         [
             InlineKeyboardButton("entrar em um curso",callback_data="pegar_codigo_curso")
         ]
     ]
+    print(cursos_usuario)
     if len(cursos_usuario) > 0:
         buttons.append([
             InlineKeyboardButton("ver meus cursos",callback_data="ver_cursos")
@@ -123,9 +124,10 @@ async def nao_deseja_entrar(update: Update,context: ContextTypes.DEFAULT_TYPE):
 
 async def ver_cursos(update: Update,context: ContextTypes.DEFAULT_TYPE):
     make_sure_flags_are_init(update.effective_chat.id)
+
     cursos_participantes = call_database_and_execute("SELECT curso_id FROM alunos_por_curso WHERE aluno_id = ?",[update.effective_chat.id])
     dados_cursos = call_database_and_execute(f"SELECT * FROM cursos WHERE curso_id IN ({','.join(list(map(lambda p: '?',cursos_participantes)))})",list(map(lambda p: p['curso_id'],cursos_participantes)))
-
+    print(cursos_participantes)
     buttons = [[InlineKeyboardButton(text=curso['nome'],callback_data=f"ver_curso {curso['curso_id']}")] for curso in dados_cursos]
 
     buttons.append([
@@ -193,6 +195,11 @@ async def voltar_ao_menu(update: Update,context: ContextTypes.DEFAULT_TYPE):
     make_sure_flags_are_init(update.effective_chat.id)
     await main_menu(update,context)
 
+
+
+async def nao_possui_codigo(update: Update,context: ContextTypes.DEFAULT_TYPE):
+    make_sure_flags_are_init(update.effective_chat.id)
+    await send_message_or_edit_last(update,context,text="Esse código é o id do curso em que você deseja entrar.\n\nPara obte-lo, solicite-o ao dono do curso.")
  
 if __name__ == '__main__':
     application = ApplicationBuilder().token(BOT_TOKEN).build()
@@ -203,6 +210,8 @@ if __name__ == '__main__':
     application.add_handler(CallbackQueryHandler(pegar_codigo_curso,pattern="pegar_codigo_curso"))
     application.add_handler(CallbackQueryHandler(nao_deseja_entrar,pattern="nao_deseja_entrar"))
     application.add_handler(CallbackQueryHandler(voltar_ao_menu,pattern="voltar_ao_menu"))
+    application.add_handler(CallbackQueryHandler(ver_cursos,pattern="ver_cursos"))
+    application.add_handler(CallbackQueryHandler(nao_possui_codigo,pattern="nao_possui_codigo"))
     
     application.add_handler(MessageHandler(filters.TEXT,handler_generic_message))
 
