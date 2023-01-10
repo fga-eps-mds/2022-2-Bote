@@ -3,6 +3,7 @@ from telegram import Update,InlineKeyboardButton
 from telegram.ext import ApplicationBuilder,MessageHandler, ContextTypes, CommandHandler,CallbackQueryHandler
 import telegram.ext.filters as filters
 import telegram
+import random
 from telegram.constants import ParseMode
 import sqlite3 as sql
 import os
@@ -44,7 +45,11 @@ flags = {
     
     "editando_aulas":False,
         "editando_descricao_aula":False,
-        "mandando_arquivo":False
+        "mandando_arquivo":False,
+
+    "cadastrando_aula":False,
+        "mandando_titulo_aula":False,
+        "mandando_descricao_aula":False
 }
 
 def reset_temp_curso(user_id):
@@ -138,6 +143,42 @@ async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     print('calling message handler!')
     make_sure_flags_are_init(update.effective_chat.id)
+
+    if flags_per_user[update.effective_chat.id]['cadastrando_aula']:
+        id_curso = temp_dados_curso[update.effective_chat.id]['id_curso']
+
+        if flags_per_user[update.effective_chat.id]['mandando_titulo_aula']:
+            temp_dados_curso[update.effective_chat.id]['titulo_aula'] = update.effective_message.text
+            await send_message_on_new_block(update,context,text="Ok! Agora me diga uma breve descrição da aula da aula",
+                buttons=[
+                    [
+                        InlineKeyboardButton("voltar ao menu",callback_data=f"ver_aulas {id_curso}")
+                    ]
+                ]
+            )
+            flags_per_user[update.effective_chat.id]["mandando_titulo_aula"] = False
+            flags_per_user[update.effective_chat.id]["mandando_descricao_aula"] = True
+            return 
+        if flags_per_user[update.effective_chat.id]['mandando_descricao_aula']:
+        
+            temp_dados_curso[update.effective_chat.id]['descricao_aula'] = update.effective_message.text
+            await send_message_on_new_block(update,context,text="Ok! Agora me diga uma breve descrição da aula",
+                buttons=[
+                    [
+                        InlineKeyboardButton("voltar ao menu",callback_data=f"ver_aulas {id_curso}")
+                    ]
+                ]
+            )
+
+            call_database_and_execute("INSERT INTO aulas_por_curso (aula_id, curso_id, titulo, descricao) VALUES (?,?,?,?)",
+                                      [
+                                        hash_string(f'{id_curso} {random.random()}'),
+                                        id_curso,
+                                        temp_dados_curso[update.effective_chat.id]['titulo_aula'],
+                                        temp_dados_curso[update.effective_chat.id]['descricao_aula']
+                                      ])
+            reset_flags(update.effective_chat.id)
+            return
 
     if flags_per_user[update.effective_chat.id]['criando_curso']:
         if flags_per_user[update.effective_chat.id]["mandando_nome_curso"]:
@@ -315,7 +356,7 @@ async def ver_aulas(id_curso: str,update: Update, context: ContextTypes.DEFAULT_
                 InlineKeyboardButton(text="sim, usando Excel",callback_data=f"enviar_aulas_excel {id_curso}")
             ],
             [
-                InlineKeyboardButton(text="sim, uma por uma",callback_data=f"enviar_aulas {id_curso}")
+                InlineKeyboardButton(text="sim, uma por uma",callback_data=f"enviar_aulas_individualmente {id_curso}")
             ],
             [
                 InlineKeyboardButton(text="voltar",callback_data=f"ver_curso_especifico {id_curso}")
@@ -520,13 +561,30 @@ async def handle_generic_callback(update: Update, context: ContextTypes.DEFAULT_
             await cadastrar_aulas_excel(dados,update,context)
             return 
 
-        if descricao_ordem == "enviar_aulas":
-            #TODO
+        if descricao_ordem == "enviar_aulas_individualmente":
+            
+            await cadastrar_aulas_individualmente(dados,update,context)
+            return
             pass
         if descricao_ordem == 'ver_aula':
             await ver_aula_especifica(dados,update,context)
 
-            
+async def cadastrar_aulas_individualmente(id_curso, update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
+    função para cadastras as aulas uma por uma
+    """
+    make_sure_flags_are_init(update.effective_chat.id)
+    
+    await send_message_or_edit_last(update, context, text = "Ok, vamos adicionar uma aula!\n\nQual título você quer dar para a aula?",
+            buttons=[
+                [
+                    InlineKeyboardButton("voltar ao menu",callback_data="voltar_ao_menu")
+                ]
+            ]
+        )
+    flags_per_user[update.effective_chat.id]['cadastrando_aula'] = True
+    flags_per_user[update.effective_chat.id]['mandando_titulo_aula'] = True
+    temp_dados_curso[update.effective_chat.id]['id_curso'] = id_curso
 
 
 if __name__ == '__main__':
