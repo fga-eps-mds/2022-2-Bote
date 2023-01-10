@@ -35,12 +35,15 @@ temp_dados_curso = {}
 
 flags = {
     "criando_curso":False,
+
     "editando_curso":False,
         "mandando_nome_curso":False,
         "mandando_descricao_curso":False,
         "mandando_senha_curso":False,
         #etc
+    
     "editando_aulas":False,
+        "editando_descricao_aula":False,
         "mandando_arquivo":False
 }
 
@@ -202,7 +205,11 @@ async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await send_message_on_new_block(update,context,text="Senha atualizada!")
             await menu_curso(id,update,context)
 
-
+    if flags_per_user[update.effective_chat.id]['editando_descricao_aula']:
+        call_database_and_execute("UPDATE aulas_por_curso SET descricao = ? WHERE aula_id = ?",
+                                 [update.effective_message.text,temp_dados_curso
+                                 [update.effective_chat.id]
+                                 ["id_aula"]])
     
 
 
@@ -340,7 +347,7 @@ async def ver_aula_especifica(id_aula: str,update: Update, context: ContextTypes
             InlineKeyboardButton(text="editar descrição",callback_data=f"editar_descricao_aula {id_aula}")
         ],
         [
-            InlineKeyboardButton(text="editar links",callback_data=f"editar_links_aula {id_aula}")
+            InlineKeyboardButton(text="adicionar links",callback_data=f"adicionar_links_aula {id_aula}")
         ],
         [
             InlineKeyboardButton(text="voltar",callback_data=f"ver_aulas {id_curso}")
@@ -430,8 +437,19 @@ async def handle_generic_callback(update: Update, context: ContextTypes.DEFAULT_
     reset_temp_curso(update.effective_chat.id)
     print('calling handle generic callback!')
     query = update.callback_query.data
+
     if len(query.split(' ')) > 1:
         descricao_ordem, dados = query.split()
+
+        if descricao_ordem == "editar_descricao_aula":
+            await send_message_or_edit_last(
+                update,
+                context,
+                text="Ok! Digite a nova descrição...")
+            reset_flags(update.effective_chat.id)
+            flags_per_user[update.effective_chat.id]['editando_descricao_aula'] = True
+            temp_dados_curso[update.effective_chat.id]['id_aula'] = dados
+
         if descricao_ordem == "ver_curso_especifico":
             print("calling curso!")
             await menu_curso(query.split()[1],update,context)
